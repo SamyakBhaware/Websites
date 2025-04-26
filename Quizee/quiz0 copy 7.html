@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <link href="style.css" rel="stylesheet">
+  <style>
+    /* Updated CSS as above */
+    .option.correct {
+      background-color: green;
+    }
+
+    .option.wrong {
+      background-color: red;
+    }
+
+    .option.selected {
+      background-color: rgb(68, 51, 69);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="question-container">
+    <button class="arrow-button" id="left-arrow" onclick="prevQuestion()">&#8592;</button>
+    <h2 class="question">Loading question...</h2>
+    <button class="arrow-button" id="right-arrow" onclick="nextQuestion()">&#8594;</button>
+  </div>
+
+  <div id="options"></div>
+
+  <!-- Submit Button at bottom-right -->
+  <button id="submit-button" onclick="showScore()">Submit</button>
+
+  <script>
+    const questions = [
+  { question: "Which instrument has keys, pedals, and strings?", options: ["Guitar", "Piano", "Flute", "Drums"], correct: 1 },
+  { question: "Who is known as 'King of Pop'?", options: ["Elvis Presley", "Michael Jackson", "Justin Bieber", "Eminem"], correct: 1 },
+  { question: "Which Indian singer is known as 'Nightingale of India'?", options: ["Lata Mangeshkar", "Alka Yagnik", "Shreya Ghoshal", "Sunidhi Chauhan"], correct: 0 },
+  { question: "Which Bollywood movie has the song 'Kal Ho Na Ho'?", options: ["Kal Ho Na Ho", "Kabhi Khushi Kabhi Gham", "Dil Se", "Hum Tum"], correct: 0 },
+  { question: "Which instrument is used in rock bands?", options: ["Sitar", "Tabla", "Electric Guitar", "Veena"], correct: 2 },
+  { question: "Which singer sang 'Shape of You'?", options: ["Ed Sheeran", "Justin Bieber", "Shawn Mendes", "Zayn Malik"], correct: 0 },
+  { question: "Who is known as 'Mozart of Madras'?", options: ["RD Burman", "A. R. Rahman", "Anu Malik", "Pritam"], correct: 1 },
+  { question: "Which Indian reality show is for singing?", options: ["Indian Idol", "Dance India Dance", "Roadies", "MasterChef"], correct: 0 },
+  { question: "What is a traditional string instrument of India?", options: ["Piano", "Sitar", "Violin", "Guitar"], correct: 1 },
+  { question: "Which band sang 'Bohemian Rhapsody'?", options: ["Queen", "The Beatles", "Linkin Park", "Coldplay"], correct: 0 }
+]
+;
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswers = new Array(questions.length).fill(null);  // Track answers for each question
+
+    function loadQuestion() {
+      const questionEl = document.querySelector('.question');
+      questionEl.classList.remove('show');
+      setTimeout(() => {
+        questionEl.innerText = questions[currentQuestion].question;
+        questionEl.classList.add('show');
+      }, 300);
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      questions[currentQuestion].options.forEach((opt, index) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        
+        // Check if the option was previously selected
+        if (selectedAnswers[currentQuestion] === index) {
+          btn.classList.add('selected');
+        }
+
+        btn.onclick = () => checkAnswer(btn, index);
+        optionsDiv.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function checkAnswer(element, selectedIndex) {
+      const correctIndex = questions[currentQuestion].correct;
+      const optionButtons = document.querySelectorAll('.option');
+
+      // Mark the selected answer and the correct one
+      optionButtons.forEach((btn, index) => {
+        btn.style.pointerEvents = 'none';
+        if (index === correctIndex) {
+          btn.classList.add('correct');
+        } else if (index === selectedIndex) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      // Track selected answer
+      selectedAnswers[currentQuestion] = selectedIndex;
+      if (selectedIndex === correctIndex) score++;
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 700);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    function showScore() {
+      window.location.href = `scoreboard.html?score=${score}`;
+    }
+
+    loadQuestion();
+  </script>
+
+</body>
+</html>

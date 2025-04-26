@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <link href="style.css" rel="stylesheet">
+  <style>
+    /* Updated CSS as above */
+    .option.correct {
+      background-color: green;
+    }
+
+    .option.wrong {
+      background-color: red;
+    }
+
+    .option.selected {
+      background-color: rgb(68, 51, 69);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="question-container">
+    <button class="arrow-button" id="left-arrow" onclick="prevQuestion()">&#8592;</button>
+    <h2 class="question">Loading question...</h2>
+    <button class="arrow-button" id="right-arrow" onclick="nextQuestion()">&#8594;</button>
+  </div>
+
+  <div id="options"></div>
+
+  <!-- Submit Button at bottom-right -->
+  <button id="submit-button" onclick="showScore()">Submit</button>
+
+  <script>
+    const questions = [
+  { question: "How many players are there in a cricket team?", options: ["10", "11", "12", "9"], correct: 1 },
+  { question: "Which country has won the most FIFA World Cups?", options: ["Germany", "Brazil", "Argentina", "France"], correct: 1 },
+  { question: "Which sport is PV Sindhu associated with?", options: ["Tennis", "Badminton", "Boxing", "Wrestling"], correct: 1 },
+  { question: "First Indian to win an Olympic gold in athletics?", options: ["Abhinav Bindra", "Neeraj Chopra", "Milkha Singh", "Mary Kom"], correct: 1 },
+  { question: "The term ‘LBW’ is used in which sport?", options: ["Football", "Cricket", "Hockey", "Tennis"], correct: 1 },
+  { question: "Where were the 2020 Summer Olympics held?", options: ["Tokyo", "London", "Rio", "Beijing"], correct: 0 },
+  { question: "Which sport uses a puck?", options: ["Cricket", "Hockey", "Football", "Golf"], correct: 1 },
+  { question: "Which country hosts Wimbledon?", options: ["USA", "England", "Australia", "France"], correct: 1 },
+  { question: "Who is known as the 'God of Cricket'?", options: ["MS Dhoni", "Virat Kohli", "Sachin Tendulkar", "Rohit Sharma"], correct: 2 },
+  { question: "How many rings are there in the Olympic logo?", options: ["3", "4", "5", "6"], correct: 2 }
+]
+;
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswers = new Array(questions.length).fill(null);  // Track answers for each question
+
+    function loadQuestion() {
+      const questionEl = document.querySelector('.question');
+      questionEl.classList.remove('show');
+      setTimeout(() => {
+        questionEl.innerText = questions[currentQuestion].question;
+        questionEl.classList.add('show');
+      }, 300);
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      questions[currentQuestion].options.forEach((opt, index) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        
+        // Check if the option was previously selected
+        if (selectedAnswers[currentQuestion] === index) {
+          btn.classList.add('selected');
+        }
+
+        btn.onclick = () => checkAnswer(btn, index);
+        optionsDiv.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function checkAnswer(element, selectedIndex) {
+      const correctIndex = questions[currentQuestion].correct;
+      const optionButtons = document.querySelectorAll('.option');
+
+      // Mark the selected answer and the correct one
+      optionButtons.forEach((btn, index) => {
+        btn.style.pointerEvents = 'none';
+        if (index === correctIndex) {
+          btn.classList.add('correct');
+        } else if (index === selectedIndex) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      // Track selected answer
+      selectedAnswers[currentQuestion] = selectedIndex;
+      if (selectedIndex === correctIndex) score++;
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 700);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    function showScore() {
+      window.location.href = `scoreboard.html?score=${score}`;
+    }
+
+    loadQuestion();
+  </script>
+
+</body>
+</html>

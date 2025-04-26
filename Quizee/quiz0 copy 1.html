@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <link href="style.css" rel="stylesheet">
+  <style>
+    /* Updated CSS as above */
+    .option.correct {
+      background-color: green;
+    }
+
+    .option.wrong {
+      background-color: red;
+    }
+
+    .option.selected {
+      background-color: rgb(68, 51, 69);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="question-container">
+    <button class="arrow-button" id="left-arrow" onclick="prevQuestion()">&#8592;</button>
+    <h2 class="question">Loading question...</h2>
+    <button class="arrow-button" id="right-arrow" onclick="nextQuestion()">&#8594;</button>
+  </div>
+
+  <div id="options"></div>
+
+  <!-- Submit Button at bottom-right -->
+  <button id="submit-button" onclick="showScore()">Submit</button>
+
+  <script>
+    const questions = [
+  { question: "Who is known as 'Bhaijaan' of Bollywood?", options: ["Salman Khan", "Shah Rukh Khan", "Aamir Khan", "Akshay Kumar"], correct: 0 },
+  { question: "Which film features the song 'Tum Hi Ho'?", options: ["Aashiqui 2", "Dangal", "Raees", "Race 3"], correct: 0 },
+  { question: "Who played 'Gabbar Singh' in Sholay?", options: ["Amjad Khan", "Dharmendra", "Amitabh Bachchan", "Sanjeev Kumar"], correct: 0 },
+  { question: "Which actress is nicknamed 'Bebo'?", options: ["Kareena Kapoor", "Katrina Kaif", "Alia Bhatt", "Deepika Padukone"], correct: 0 },
+  { question: "Which actor starred in '3 Idiots'?", options: ["Salman Khan", "Aamir Khan", "Akshay Kumar", "Ranbir Kapoor"], correct: 1 },
+  { question: "Which movie had the dialogue 'Mogambo khush hua'?", options: ["Sholay", "Mr. India", "Don", "Deewar"], correct: 1 },
+  { question: "Who directed 'Lagaan'?", options: ["Ashutosh Gowariker", "Karan Johar", "Rajkumar Hirani", "Rohit Shetty"], correct: 0 },
+  { question: "Which actress starred in 'Barfi'?", options: ["Kareena Kapoor", "Priyanka Chopra", "Kangana Ranaut", "Alia Bhatt"], correct: 1 },
+  { question: "Which film was India's official entry to Oscars in 2023?", options: ["RRR", "Chhello Show", "The Kashmir Files", "Rocketry"], correct: 1 },
+  { question: "Who is known as 'King Khan'?", options: ["Salman Khan", "Aamir Khan", "Shah Rukh Khan", "Irrfan Khan"], correct: 2 }
+];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswers = new Array(questions.length).fill(null);  // Track answers for each question
+
+    function loadQuestion() {
+      const questionEl = document.querySelector('.question');
+      questionEl.classList.remove('show');
+      setTimeout(() => {
+        questionEl.innerText = questions[currentQuestion].question;
+        questionEl.classList.add('show');
+      }, 300);
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      questions[currentQuestion].options.forEach((opt, index) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        
+        // Check if the option was previously selected
+        if (selectedAnswers[currentQuestion] === index) {
+          btn.classList.add('selected');
+        }
+
+        btn.onclick = () => checkAnswer(btn, index);
+        optionsDiv.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function checkAnswer(element, selectedIndex) {
+      const correctIndex = questions[currentQuestion].correct;
+      const optionButtons = document.querySelectorAll('.option');
+
+      // Mark the selected answer and the correct one
+      optionButtons.forEach((btn, index) => {
+        btn.style.pointerEvents = 'none';
+        if (index === correctIndex) {
+          btn.classList.add('correct');
+        } else if (index === selectedIndex) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      // Track selected answer
+      selectedAnswers[currentQuestion] = selectedIndex;
+      if (selectedIndex === correctIndex) score++;
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 700);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    function showScore() {
+      window.location.href = `scoreboard.html?score=${score}`;
+    }
+
+    loadQuestion();
+  </script>
+
+</body>
+</html>

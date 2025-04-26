@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <link href="style.css" rel="stylesheet">
+  <style>
+    /* Updated CSS as above */
+    .option.correct {
+      background-color: green;
+    }
+
+    .option.wrong {
+      background-color: red;
+    }
+
+    .option.selected {
+      background-color: rgb(68, 51, 69);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="question-container">
+    <button class="arrow-button" id="left-arrow" onclick="prevQuestion()">&#8592;</button>
+    <h2 class="question">Loading question...</h2>
+    <button class="arrow-button" id="right-arrow" onclick="nextQuestion()">&#8594;</button>
+  </div>
+
+  <div id="options"></div>
+
+  <!-- Submit Button at bottom-right -->
+  <button id="submit-button" onclick="showScore()">Submit</button>
+
+  <script>
+    const questions = [
+  { question: "What is 25 + 25?", options: ["40", "50", "45", "60"], correct: 1 },
+  { question: "Square root of 81 is?", options: ["8", "9", "7", "6"], correct: 1 },
+  { question: "What is 100 ÷ 4?", options: ["20", "40", "25", "30"], correct: 2 },
+  { question: "What is 5 × 6?", options: ["35", "30", "25", "40"], correct: 1 },
+  { question: "What is 12²?", options: ["124", "144", "154", "164"], correct: 1 },
+  { question: "What is 15% of 200?", options: ["30", "40", "20", "35"], correct: 0 },
+  { question: "Value of π (approx)?", options: ["3.12", "3.14", "3.16", "3.18"], correct: 1 },
+  { question: "What comes next: 2, 4, 8, 16, ?", options: ["20", "24", "32", "30"], correct: 2 },
+  { question: "What is 49 ÷ 7?", options: ["5", "6", "7", "8"], correct: 2 },
+  { question: "What is 0 multiplied by any number?", options: ["1", "0", "Infinity", "The number itself"], correct: 1 }
+];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswers = new Array(questions.length).fill(null);  // Track answers for each question
+
+    function loadQuestion() {
+      const questionEl = document.querySelector('.question');
+      questionEl.classList.remove('show');
+      setTimeout(() => {
+        questionEl.innerText = questions[currentQuestion].question;
+        questionEl.classList.add('show');
+      }, 300);
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      questions[currentQuestion].options.forEach((opt, index) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        
+        // Check if the option was previously selected
+        if (selectedAnswers[currentQuestion] === index) {
+          btn.classList.add('selected');
+        }
+
+        btn.onclick = () => checkAnswer(btn, index);
+        optionsDiv.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function checkAnswer(element, selectedIndex) {
+      const correctIndex = questions[currentQuestion].correct;
+      const optionButtons = document.querySelectorAll('.option');
+
+      // Mark the selected answer and the correct one
+      optionButtons.forEach((btn, index) => {
+        btn.style.pointerEvents = 'none';
+        if (index === correctIndex) {
+          btn.classList.add('correct');
+        } else if (index === selectedIndex) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      // Track selected answer
+      selectedAnswers[currentQuestion] = selectedIndex;
+      if (selectedIndex === correctIndex) score++;
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 700);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    function showScore() {
+      window.location.href = `scoreboard.html?score=${score}`;
+    }
+
+    loadQuestion();
+  </script>
+
+</body>
+</html>

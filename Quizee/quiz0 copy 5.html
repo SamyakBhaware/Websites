@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz App</title>
+  <link href="style.css" rel="stylesheet">
+  <style>
+    /* Updated CSS as above */
+    .option.correct {
+      background-color: green;
+    }
+
+    .option.wrong {
+      background-color: red;
+    }
+
+    .option.selected {
+      background-color: rgb(68, 51, 69);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="question-container">
+    <button class="arrow-button" id="left-arrow" onclick="prevQuestion()">&#8592;</button>
+    <h2 class="question">Loading question...</h2>
+    <button class="arrow-button" id="right-arrow" onclick="nextQuestion()">&#8594;</button>
+  </div>
+
+  <div id="options"></div>
+
+  <!-- Submit Button at bottom-right -->
+  <button id="submit-button" onclick="showScore()">Submit</button>
+
+  <script>
+    const questions =[
+  { question: "Who was the first President of India?", options: ["Jawaharlal Nehru", "Dr. Rajendra Prasad", "APJ Abdul Kalam", "Sardar Patel"], correct: 1 },
+  { question: "Who discovered America?", options: ["Vasco da Gama", "Christopher Columbus", "Marco Polo", "Magellan"], correct: 1 },
+  { question: "Which Mughal emperor built the Taj Mahal?", options: ["Akbar", "Aurangzeb", "Shah Jahan", "Babur"], correct: 2 },
+  { question: "Who was known as 'Iron Man of India'?", options: ["Subhash Chandra Bose", "Sardar Vallabhbhai Patel", "Bhagat Singh", "Lal Bahadur Shastri"], correct: 1 },
+  { question: "In which year did India get Independence?", options: ["1947", "1950", "1930", "1942"], correct: 0 },
+  { question: "Who wrote the Indian National Anthem?", options: ["Rabindranath Tagore", "Bankim Chandra Chatterjee", "Mahatma Gandhi", "Subhash Chandra Bose"], correct: 0 },
+  { question: "Who was the last Governor-General of independent India?", options: ["Lord Mountbatten", "C. Rajagopalachari", "Nehru", "Patel"], correct: 1 },
+  { question: "Who founded the Maurya Empire?", options: ["Ashoka", "Chandragupta Maurya", "Harshavardhana", "Bindusara"], correct: 1 },
+  { question: "Battle of Panipat was fought in?", options: ["1761", "1556", "1526", "1857"], correct: 2 },
+  { question: "Who is known as 'Father of the Nation'?", options: ["Jawaharlal Nehru", "Mahatma Gandhi", "Bhagat Singh", "Sardar Patel"], correct: 1 }
+]
+;
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswers = new Array(questions.length).fill(null);  // Track answers for each question
+
+    function loadQuestion() {
+      const questionEl = document.querySelector('.question');
+      questionEl.classList.remove('show');
+      setTimeout(() => {
+        questionEl.innerText = questions[currentQuestion].question;
+        questionEl.classList.add('show');
+      }, 300);
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      questions[currentQuestion].options.forEach((opt, index) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        
+        // Check if the option was previously selected
+        if (selectedAnswers[currentQuestion] === index) {
+          btn.classList.add('selected');
+        }
+
+        btn.onclick = () => checkAnswer(btn, index);
+        optionsDiv.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function checkAnswer(element, selectedIndex) {
+      const correctIndex = questions[currentQuestion].correct;
+      const optionButtons = document.querySelectorAll('.option');
+
+      // Mark the selected answer and the correct one
+      optionButtons.forEach((btn, index) => {
+        btn.style.pointerEvents = 'none';
+        if (index === correctIndex) {
+          btn.classList.add('correct');
+        } else if (index === selectedIndex) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      // Track selected answer
+      selectedAnswers[currentQuestion] = selectedIndex;
+      if (selectedIndex === correctIndex) score++;
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 700);
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    function showScore() {
+      window.location.href = `scoreboard.html?score=${score}`;
+    }
+
+    loadQuestion();
+  </script>
+
+</body>
+</html>
